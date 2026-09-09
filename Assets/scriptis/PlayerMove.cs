@@ -45,12 +45,9 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    void OnCollisonExit(Collision colisao)
+    private void OnCollisionExit(Collision collision)
     {
-       
-        noChao = false;
-          
-        
+        noChao=false;
     }
 
 
