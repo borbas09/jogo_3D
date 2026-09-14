@@ -3,52 +3,65 @@ using UnityEngine;
 public class PlayerMove : MonoBehaviour
 {
     [Header("Movimento")]
-
     public float velocidade = 5f;
     public float forcaPulo = 6f;
 
+    public Transform cameraPlayer;
+
     private Rigidbody rb;
     private bool noChao;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetButtonDown("Jump") && noChao)
         {
             rb.AddForce(Vector3.up * forcaPulo, ForceMode.Impulse);
         }
-        
-      
     }
+
     void FixedUpdate()
     {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
-        Vector3 direcao = new Vector3(h, 0f, v) * velocidade;
+        // Pega a direção da câmera
+        Vector3 frente = cameraPlayer.forward;
+        Vector3 direita = cameraPlayer.right;
+
+        // Impede que olhar para cima/baixo altere o movimento
+        frente.y = 0f;
+        direita.y = 0f;
+
+        frente.Normalize();
+        direita.Normalize();
+
+        // Movimento baseado na direção da câmera
+        Vector3 direcao = (frente * v + direita * h) * velocidade;
+
         direcao.y = rb.linearVelocity.y;
 
         rb.linearVelocity = direcao;
     }
 
-     void OnCollisionStay(Collision collisao)
+    void OnCollisionStay(Collision colisao)
     {
-       if(collisao.gameObject.CompareTag("Chao"))
+        if (colisao.gameObject.CompareTag("Chao"))
         {
             noChao = true;
         }
     }
 
-    private void OnCollisionExit(Collision collision)
+    void OnCollisionExit(Collision colisao)
     {
-        noChao=false;
+        if (colisao.gameObject.CompareTag("Chao"))
+        {
+            noChao = false;
+        }
     }
-
-
 }
